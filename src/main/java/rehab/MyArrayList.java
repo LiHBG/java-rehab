@@ -76,6 +76,7 @@ public class MyArrayList<E> implements Iterable<E> {
         return (E) elementData[index];
     }
 
+    @SuppressWarnings("unchecked")
     public E set(int index, E element) {
         Objects.checkIndex(index, size);
         E oldValue = (E) elementData[index];
@@ -153,6 +154,14 @@ public class MyArrayList<E> implements Iterable<E> {
         }
     }
 
+    int capacity() {
+        return elementData.length;
+    }
+
+    Object[] elementDataForTest() {
+        return elementData;
+    }
+
     private class Itr implements Iterator<E> {
         int cursor;
         int lastRet = -1;
@@ -170,18 +179,35 @@ public class MyArrayList<E> implements Iterable<E> {
             if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
             }
-
-
-
-
-
-            throw new UnsupportedOperationException("TODO");
+            int i = cursor;
+            if (i >= size) {
+                throw new NoSuchElementException();
+            }
+            Object[] ed = MyArrayList.this.elementData;
+            if (i >= ed.length) {
+                throw new ConcurrentModificationException();
+            }
+            cursor = i + 1;
+            return (E) ed[lastRet = i];
         }
 
         @Override
         public void remove() {
             // TODO: lastRet < 0 抛 IllegalStateException；删完 expectedModCount = modCount
-            throw new UnsupportedOperationException("TODO");
+            if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            try {
+                MyArrayList.this.remove(lastRet);
+                cursor = lastRet;
+                lastRet = -1;
+                expectedModCount = modCount;
+            } catch (IndexOutOfBoundsException e) {
+                throw new ConcurrentModificationException();
+            }
         }
     }
 }

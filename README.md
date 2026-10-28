@@ -23,7 +23,8 @@ Java + AI Agent 双栈 · 8 周康复训练仓库。
 └── src/
     ├── main/java/rehab/
     │   ├── MyArrayList.java             手写 ArrayList：懒加载 + 1.5 倍扩容 + fail-fast
-    │   └── Bench.java                   ArrayList / LinkedList 三场景耗时对比
+    │   ├── Bench.java                   第一版三场景对比（有 println 污染，留作对照）
+    │   └── BenchFixed.java              修正版：预热/计时/取值都改对了
     └── test/java/rehab/
         ├── MyArrayListTest.java         9 个测试
         └── ToolchainSmokeTest.java      环境自检
@@ -38,11 +39,12 @@ Java + AI Agent 双栈 · 8 周康复训练仓库。
 `run-tests.ps1` 会自己设好 `JAVA_HOME`。PATH 上的 `java` 是 Java 8，
 直接 `mvn test` 会报 `invalid target release: 21`。
 
-跑 Bench（`main` 里一次只开一个场景，注释切换）：
+跑 benchmark（`BenchFixed` 一次跑完四个场景，约 1 分钟；`Bench` 是早期版本，结果偏大）：
 
 ```powershell
-$env:JAVA_HOME = 'D:\develop\JDK\jdk-21'
-java -cp target/classes rehab.Bench
+.\run-tests.ps1 -q compile
+java -cp target/classes rehab.BenchFixed
+java -Xmx128m -cp target/classes rehab.BenchFixed   # 内存吃紧时再跑一次，看 ArrayDeque 的优势
 ```
 
 ## W1D1：手写 MyArrayList
